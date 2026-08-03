@@ -85,6 +85,18 @@ func (c *Client) Trace(ctx context.Context, url string, data ...any) (*Response,
 	return c.DoRequest(ctx, http.MethodTrace, url, data...)
 }
 
+// QueryMethod is the HTTP QUERY method as defined in RFC 10008.
+// The QUERY method is a safe, idempotent request that encloses a representation
+// describing how the request is to be processed by the target resource.
+const QueryMethod = "QUERY"
+
+// Query send QUERY request (RFC 10008) and returns the response object.
+// The QUERY method is safe and idempotent like GET, but carries request body like POST.
+// Note that the response object MUST be closed if it'll never be used.
+func (c *Client) Query(ctx context.Context, url string, data ...any) (*Response, error) {
+	return c.DoRequest(ctx, QueryMethod, url, data...)
+}
+
 // PostForm is different from net/http.PostForm.
 // It's a wrapper of Post method, which sets the Content-Type as "multipart/form-data;".
 // and It will automatically set boundary characters for the request body and Content-Type.

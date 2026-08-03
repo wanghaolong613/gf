@@ -148,7 +148,7 @@ const (
 )
 
 const (
-	supportedHttpMethods               = "GET,PUT,POST,DELETE,PATCH,HEAD,CONNECT,OPTIONS,TRACE"
+	supportedHttpMethods               = "GET,PUT,POST,DELETE,PATCH,HEAD,CONNECT,OPTIONS,TRACE,QUERY"
 	defaultMethod                      = "ALL"
 	routeCacheDuration                 = time.Hour
 	ctxKeyForRequest       gctx.StrKey = "gHttpRequestObject"

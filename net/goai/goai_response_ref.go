@@ -168,7 +168,6 @@ func (oai *OpenApiV3) getResponseSchemaRef(in getResponseSchemaRefInput) (*Schem
 						return nil, err
 					}
 					schema.Properties.Set(fieldName, *bizResponseStructSchemaRef)
-					break
 				}
 			default:
 				// Recursively creating common response object schema.
@@ -183,7 +182,6 @@ func (oai *OpenApiV3) getResponseSchemaRef(in getResponseSchemaRefInput) (*Schem
 						return nil, err
 					}
 					schema.Properties.Set(fieldName, *schemaRef)
-					break
 				}
 			}
 		}

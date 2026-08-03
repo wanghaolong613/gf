@@ -235,11 +235,11 @@ func (oai *OpenApiV3) fillMapWithShortTags(m map[string]string) map[string]strin
 }
 
 func formatRefToBytes(ref string) []byte {
-	return []byte(fmt.Sprintf(`{"$ref":"#/components/schemas/%s"}`, ref))
+	return fmt.Appendf([]byte{}, `{"$ref":"#/components/schemas/%s"}`, ref)
 }
 
 func formatRefAndDescToBytes(ref, desc string) []byte {
-	return []byte(fmt.Sprintf(`{"$ref":"#/components/schemas/%s","description":"%s"}`, ref, desc))
+	return fmt.Appendf([]byte{}, `{"$ref":"#/components/schemas/%s","description":"%s"}`, ref, desc)
 }
 
 func isValidParameterName(key string) bool {

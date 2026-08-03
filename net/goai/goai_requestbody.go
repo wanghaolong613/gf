@@ -88,7 +88,6 @@ func (oai *OpenApiV3) getRequestSchemaRef(in getRequestSchemaRefInput) (*SchemaR
 						return nil, err
 					}
 					schema.Properties.Set(fieldName, *bizRequestStructSchemaRef)
-					break
 				}
 			default:
 				if structField.Name() == dataFieldsPartsArray[0] {
@@ -102,7 +101,6 @@ func (oai *OpenApiV3) getRequestSchemaRef(in getRequestSchemaRefInput) (*SchemaR
 						return nil, err
 					}
 					schema.Properties.Set(fieldName, *schemaRef)
-					break
 				}
 			}
 		}

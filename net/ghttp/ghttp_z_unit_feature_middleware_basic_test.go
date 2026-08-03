@@ -591,7 +591,7 @@ func Test_Middleware_CORSAndAuth(t *testing.T) {
 		t.AssertNil(err)
 		t.Assert(len(resp.Header["Access-Control-Allow-Headers"]), 1)
 		t.Assert(resp.Header["Access-Control-Allow-Headers"][0], "Origin,Content-Type,Accept,User-Agent,Cookie,Authorization,X-Auth-Token,X-Requested-With")
-		t.Assert(resp.Header["Access-Control-Allow-Methods"][0], "GET,PUT,POST,DELETE,PATCH,HEAD,CONNECT,OPTIONS,TRACE")
+		t.Assert(resp.Header["Access-Control-Allow-Methods"][0], "GET,PUT,POST,DELETE,PATCH,HEAD,CONNECT,OPTIONS,TRACE,QUERY")
 		t.Assert(resp.Header["Access-Control-Allow-Origin"][0], "*")
 		t.Assert(resp.Header["Access-Control-Max-Age"][0], "3628800")
 		resp.Close()

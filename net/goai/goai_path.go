@@ -36,6 +36,7 @@ type Path struct {
 	Post        *Operation  `json:"post,omitempty"`
 	Put         *Operation  `json:"put,omitempty"`
 	Trace       *Operation  `json:"trace,omitempty"`
+	Query       *Operation  `json:"query,omitempty"` // QUERY method (RFC 10008)
 	Servers     Servers     `json:"servers,omitempty"`
 	Parameters  Parameters  `json:"parameters,omitempty"`
 	XExtensions XExtensions `json:"-"`
@@ -309,6 +310,10 @@ func (oai *OpenApiV3) addPath(in addPathInput) error {
 
 	case http.MethodTrace:
 		path.Trace = &operation
+
+	case "QUERY":
+		// QUERY method (RFC 10008) can have requestBody like POST.
+		path.Query = &operation
 
 	default:
 		return gerror.NewCodef(gcode.CodeInvalidParameter, `invalid method "%s"`, in.Method)

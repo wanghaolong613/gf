@@ -1377,3 +1377,134 @@ func Test_ValidationRules(t *testing.T) {
 		t.Assert(schema.Properties.Get("Address").Value.MaxLength, 64)
 	})
 }
+
+// TestOpenApiV3_QUERY_Method tests QUERY method (RFC 10008) support in OpenAPI.
+func TestOpenApiV3_QUERY_Method(t *testing.T) {
+	type QueryTestReq struct {
+		gmeta.Meta `path:"/query-test" method:"QUERY" tags:"test" summary:"Test QUERY method"`
+		Name       string `json:"name" v:"required" dc:"Name parameter"`
+		Age        int    `json:"age" dc:"Age parameter"`
+	}
+
+	type QueryTestRes struct {
+		gmeta.Meta `description:"Query response"`
+		Result     string `json:"result" dc:"Result"`
+	}
+
+	f := func(ctx context.Context, req *QueryTestReq) (res *QueryTestRes, err error) {
+		return
+	}
+
+	gtest.C(t, func(t *gtest.T) {
+		var (
+			err error
+			oai = goai.New()
+		)
+		err = oai.Add(goai.AddInput{
+			Path:   "/query-test",
+			Method: "QUERY",
+			Object: f,
+		})
+		t.AssertNil(err)
+
+		// Path should exist with QUERY method.
+		t.Assert(len(oai.Paths), 1)
+		path := oai.Paths["/query-test"]
+		t.AssertNE(path, nil)
+
+		// QUERY operation should be set.
+		t.AssertNE(path.Query, nil)
+		t.Assert(path.Query.Summary, "Test QUERY method")
+		t.Assert(len(path.Query.Tags), 1)
+
+		// QUERY method should have request body (like POST).
+		t.AssertNE(path.Query.RequestBody, nil)
+
+		// QUERY method should have responses.
+		t.Assert(len(path.Query.Responses), 1)
+
+		// Schema should be created for request body.
+		schemaKey := "github.com.gogf.gf.v2.net.goai_test.QueryTestReq"
+		schema := oai.Components.Schemas.Get(schemaKey)
+		t.AssertNE(schema, nil)
+		t.Assert(schema.Value.Type, goai.TypeObject)
+		t.Assert(len(schema.Value.Properties.Map()), 2)
+	})
+}
+
+// TestOpenApiV3_QUERY_Method_WithMeta tests QUERY method using Meta tag.
+func TestOpenApiV3_QUERY_Method_WithMeta(t *testing.T) {
+	type QueryMetaReq struct {
+		gmeta.Meta `path:"/meta-query" method:"QUERY" tags:"meta" summary:"Test QUERY with Meta"`
+		Name       string `json:"name" v:"required" dc:"Name"`
+		Filter     string `json:"filter" dc:"Filter condition"`
+	}
+
+	type QueryMetaRes struct {
+		gmeta.Meta `description:"Meta query response"`
+		Result     string `json:"result"`
+	}
+
+	f := func(ctx context.Context, req *QueryMetaReq) (res *QueryMetaRes, err error) {
+		return
+	}
+
+	gtest.C(t, func(t *gtest.T) {
+		var (
+			err error
+			oai = goai.New()
+		)
+		err = oai.Add(goai.AddInput{
+			Object: f,
+		})
+		t.AssertNil(err)
+
+		// Path should exist.
+		t.Assert(len(oai.Paths), 1)
+		path := oai.Paths["/meta-query"]
+		t.AssertNE(path, nil)
+
+		// QUERY operation should be set.
+		t.AssertNE(path.Query, nil)
+		t.Assert(path.Query.Summary, "Test QUERY with Meta")
+
+		// QUERY method should have request body.
+		t.AssertNE(path.Query.RequestBody, nil)
+
+		// Schema should be created.
+		schemaKey := "github.com.gogf.gf.v2.net.goai_test.QueryMetaReq"
+		schema := oai.Components.Schemas.Get(schemaKey)
+		t.AssertNE(schema, nil)
+		t.Assert(schema.Value.Type, goai.TypeObject)
+	})
+}
+
+// TestOpenApiV3_QUERY_Method_NoRequestBody tests QUERY method with empty request body.
+func TestOpenApiV3_QUERY_Method_NoRequestBody(t *testing.T) {
+	type QueryRes struct {
+		gmeta.Meta `description:"Empty query response"`
+		Message    string `json:"message"`
+	}
+
+	f := func(ctx context.Context, req *struct{}) (res *QueryRes, err error) {
+		return
+	}
+
+	gtest.C(t, func(t *gtest.T) {
+		var (
+			err error
+			oai = goai.New()
+		)
+		err = oai.Add(goai.AddInput{
+			Path:   "/empty-query",
+			Method: "QUERY",
+			Object: f,
+		})
+		t.AssertNil(err)
+
+		t.Assert(len(oai.Paths), 1)
+		path := oai.Paths["/empty-query"]
+		t.AssertNE(path, nil)
+		t.AssertNE(path.Query, nil)
+	})
+}

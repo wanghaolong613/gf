@@ -13,6 +13,9 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 )
 
+// httpMethodQuery is the HTTP QUERY method as defined in RFC 10008.
+const httpMethodQuery = "QUERY"
+
 // SetQuery sets custom query value with key-value pairs.
 func (r *Request) SetQuery(key string, value any) {
 	r.parseQuery()
