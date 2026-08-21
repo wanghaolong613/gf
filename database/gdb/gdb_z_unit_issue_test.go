@@ -79,10 +79,12 @@ func Test_ScanValidateSingleFieldSpecified(t *testing.T) {
 		t.AssertNE(m3.validateSingleFieldSpecified(), nil)
 		t.Assert(m3.isSingleFieldSpecified(), false)
 
-		// FieldsEx only → reject. FieldsEx is an exclusion list and does not
-		// declare a single result column for basic-type Scan.
+		// FieldsEx only with nil db → skip validation. When the table schema
+		// cannot be inspected (no DB connection), the FieldsEx column-count
+		// check is deferred to the post-query Value()/Array() step, so
+		// validateSingleFieldSpecified returns nil here.
 		m4 := &Model{fieldsEx: []any{"id"}}
-		t.AssertNE(m4.validateSingleFieldSpecified(), nil)
+		t.AssertNil(m4.validateSingleFieldSpecified())
 		t.Assert(m4.isSingleFieldSpecified(), false)
 
 		// gdb.Raw("name") as single field → reject (still Raw, cannot guarantee).
