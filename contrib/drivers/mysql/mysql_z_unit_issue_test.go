@@ -2470,7 +2470,7 @@ func Test_Issue3977(t *testing.T) {
 		var balance6 *decimal.Decimal
 		err = db.Model(table).Fields("balance").Where("id", 3).Scan(&balance6)
 		t.Assert(err, nil)
-		t.Assert(balance6.IsZero(), true)
+		t.AssertNil(balance6)
 
 		var balance7 decimal.Decimal
 		err = db.Model(table).Fields("balance").Where("id", 999).Scan(&balance7)
