@@ -79,13 +79,16 @@ func Test_ScanValidateSingleFieldSpecified(t *testing.T) {
 		t.AssertNE(m3.validateSingleFieldSpecified(), nil)
 		t.Assert(m3.isSingleFieldSpecified(), false)
 
-		// FieldsEx only → reject. FieldsEx is an exclusion list and does not
-		// declare a single result column for basic-type Scan.
+		// FieldsEx only → accepted. FieldsEx can narrow the result to a single
+		// column; with a nil db the column-count check is skipped, so validation
+		// passes. isSingleFieldSpecified still reports false because FieldsEx is
+		// not an explicit single-field declaration.
 		m4 := &Model{fieldsEx: []any{"id"}}
-		t.AssertNE(m4.validateSingleFieldSpecified(), nil)
+		t.AssertNil(m4.validateSingleFieldSpecified())
 		t.Assert(m4.isSingleFieldSpecified(), false)
 
-		// gdb.Raw("name") as single field → reject (still Raw, cannot guarantee).
+		// gdb.Raw("name") as single field → accept, because it resolves to a
+		// single column and is not an expanding field.
 		m5 := &Model{fields: []any{Raw("name")}}
 		t.AssertNil(m5.validateSingleFieldSpecified())
 		t.Assert(m5.isSingleFieldSpecified(), true)

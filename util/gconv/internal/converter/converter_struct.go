@@ -480,6 +480,11 @@ func bindVarToReflectValueWithInterfaceCheck(reflectValue reflect.Value, value a
 			return ok, v.UnmarshalJSON(valueBytes)
 		}
 	}
+	// sql scanner.
+	if v, ok := pointer.(localinterface.ISqlScanner); ok {
+		return ok, v.Scan(value)
+	}
+	// ISet is the interface for custom value assignment.
 	if v, ok := pointer.(localinterface.ISet); ok {
 		v.Set(value)
 		return ok, nil
