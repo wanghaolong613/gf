@@ -186,6 +186,9 @@ func (c *Converter) Scan(srcValue any, dstPointer any, option ...ScanOption) (er
 			for i := range srcLen {
 				srcElem := srcValueReflectValue.Index(i).Interface()
 				target := newSlice.Index(i)
+				if srcElem == nil {
+					continue
+				}
 
 				if target.Kind() == reflect.Pointer {
 					if target.IsNil() {
