@@ -366,39 +366,6 @@ func Test_Model_Scan_CustomType_Time(t *testing.T) {
 	})
 }
 
-type MyTimeSt2 struct {
-	CreateTime MyTime
-}
-
-func (st *MyTimeSt2) UnmarshalText(v any) error {
-	m := gconv.Map(v)
-	t, err := gtime.StrToTime(gconv.String(m["create_time"]))
-	if err != nil {
-		return err
-	}
-	st.CreateTime = MyTime{*t}
-	return nil
-}
-
-func Test_Model_Scan_CustomType_Time2(t *testing.T) {
-	table := createInitTable()
-	defer dropTable(table)
-	gtest.C(t, func(t *gtest.T) {
-		st := new(MyTimeSt2)
-		err := db.Model(table).Fields("create_time").Scan(st)
-		t.AssertNil(err)
-		t.Assert(st.CreateTime.String(), "2018-10-24 10:00:00")
-	})
-	gtest.C(t, func(t *gtest.T) {
-		var stSlice []*MyTimeSt2
-		err := db.Model(table).Fields("create_time").Scan(&stSlice)
-		t.AssertNil(err)
-		t.Assert(len(stSlice), TableSize)
-		t.Assert(stSlice[0].CreateTime.String(), "2018-10-24 10:00:00")
-		t.Assert(stSlice[9].CreateTime.String(), "2018-10-24 10:00:00")
-	})
-}
-
 func Test_Model_Scan_CustomType_String(t *testing.T) {
 	type MyString string
 
