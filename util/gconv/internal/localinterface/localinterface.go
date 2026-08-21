@@ -113,7 +113,6 @@ type ISqlScanner interface {
 	Scan(src any) error
 }
 
-// ISet is the interface for custom value assignment.
 type ISet interface {
 	Set(value any) (old any)
 }
