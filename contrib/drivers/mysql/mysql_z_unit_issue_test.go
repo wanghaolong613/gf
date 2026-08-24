@@ -2071,17 +2071,17 @@ func Test_Issue4698(t *testing.T) {
 }
 
 type Issue3977SUser struct {
-	UserName string
+	UserName Issue3977UserFirstMarker
 	Age      int
 }
 
-type Issue3977SUserFirst struct {
+type Issue3977UserFirstMarker struct {
 	First    *bool
 	UserName *string
 }
 
 // Scan
-func (i *Issue3977SUserFirst) Scan(v any) error {
+func (i *Issue3977UserFirstMarker) Scan(v any) error {
 	if v == nil {
 		return nil
 	}
@@ -2493,54 +2493,54 @@ func Test_Issue3977(t *testing.T) {
 	// Issue3977SUserFirst
 	gtest.C(t, func(t *gtest.T) {
 		var err error
-		var username Issue3977SUserFirst
+		var username Issue3977UserFirstMarker
 		err = db.Model(table).Fields("username").Where("id", 1).Scan(&username)
 		t.Assert(err, nil)
 		t.Assert(username.UserName, "username1")
 		t.Assert(username.First, true)
-		var username2 *Issue3977SUserFirst
+		var username2 *Issue3977UserFirstMarker
 		err = db.Model(table).Fields("username").Where("id", 1).Scan(&username2)
 		t.Assert(err, nil)
 		t.Assert(username2.UserName, "username1")
 		t.Assert(username2.First, true)
 
-		var username3 Issue3977SUserFirst
+		var username3 Issue3977UserFirstMarker
 		err = db.Model(table).Fields("username").Where("id", 2).Scan(&username3)
 		t.AssertNil(err)
 		t.Assert(username3.UserName, "")
 		t.Assert(username3.First, false)
-		var username4 *Issue3977SUserFirst
+		var username4 *Issue3977UserFirstMarker
 		err = db.Model(table).Fields("username").Where("id", 2).Scan(&username4)
 		t.AssertNil(err)
 		t.Assert(username4.UserName, "")
 		t.Assert(username4.First, false)
 
-		var username5 Issue3977SUserFirst
+		var username5 Issue3977UserFirstMarker
 		err = db.Model(table).Fields("username").Where("id", 3).Scan(&username5)
 		t.AssertNil(err)
 		t.AssertNil(username5.UserName)
 		t.AssertNil(username5.First)
 
-		var username6 *Issue3977SUserFirst
+		var username6 *Issue3977UserFirstMarker
 		err = db.Model(table).Fields("username").Where("id", 3).Scan(&username6)
 		t.AssertNil(err)
 		t.AssertNil(username6)
 
-		var username7 *Issue3977SUserFirst
+		var username7 *Issue3977UserFirstMarker
 		err = db.Model(table).Fields("username").Where("id", 999).Scan(&username7)
 		t.Assert(err, sql.ErrNoRows)
-		var username8 Issue3977SUserFirst
+		var username8 Issue3977UserFirstMarker
 		err = db.Model(table).Fields("username").Where("id", 999).Scan(&username8)
 		t.Assert(err, sql.ErrNoRows)
 
-		var usernames []Issue3977SUserFirst
+		var usernames []Issue3977UserFirstMarker
 		err = db.Model(table).Fields("username").Scan(&usernames)
 		t.AssertNil(err)
 		t.Assert(usernames[0].UserName, "username1")
 		t.Assert(usernames[1].UserName, "")
 		t.AssertNil(usernames[2].UserName)
 
-		var usernames2 []*Issue3977SUserFirst
+		var usernames2 []*Issue3977UserFirstMarker
 		err = db.Model(table).Fields("username").Scan(&usernames2)
 		t.AssertNil(err)
 		t.Assert(usernames2[0].UserName, "username1")
@@ -2626,38 +2626,41 @@ func Test_Issue3977(t *testing.T) {
 		t.Assert(err.Error(), "Scan into basic/scalar-conversion type requires exactly 1 field specified via Fields(), but FieldsEx leaves 2 columns after filtering")
 	})
 
+	// AS
+	gtest.C(t, func(t *gtest.T) {
+		var fields = []string{
+			"`age` as age",
+			"age AS age",
+			"age age",
+			"`age` age",
+			"sum(age) age",
+			"sum(age) AS age",
+		}
+		for _, v := range fields {
+			var age int
+			err := db.Model(table).Fields(v).Where("id", 1).Scan(&age)
+			t.Assert(err, nil)
+			t.Assert(age, 18)
+		}
+	})
+
+	// sql.scan
 	gtest.C(t, func(t *gtest.T) {
 		var user Issue3977SUser
 		// Many field scan
 		err := db.Model(table).Fields("username", "age").Where("id", 1).Scan(&user)
 		t.Assert(err, nil)
 		t.Assert(user.Age, 18)
-		t.Assert(user.UserName, "username1")
+		t.Assert(user.UserName.UserName, "username1")
+		t.Assert(user.UserName.First, true)
 
 		// Single field scan
 		var user2 Issue3977SUser
-		err = db.Model(table).Fields("age").Where("id", 2).Scan(&user2)
+		err = db.Model(table).Fields("username").Where("id", 1).Scan(&user2)
 		t.Assert(err, nil)
 		t.Assert(user2.Age, 0)
-		t.Assert(user2.UserName, "")
-
-		err = db.Model(table).Fields("`age`").Where("id", 2).Scan(&user2)
-		t.Assert(err, nil)
-		t.Assert(user.Age, 18)
-
-		err = db.Model(table).Fields("`age` as age").Where("id", 1).Scan(&user2)
-		t.Assert(err, nil)
-		t.Assert(user.Age, 18)
-
-		err = db.Model(table).Fields("`age` age").Where("id", 1).Scan(&user2)
-		t.Assert(err, nil)
-		t.Assert(err, nil)
-		t.Assert(user.Age, 18)
-
-		err = db.Model(table).Fields("`age` age").Where("id", 1).Scan(&user2)
-		t.Assert(err, nil)
-		t.Assert(user.Age, 18)
-
+		t.Assert(user2.UserName.UserName, "username1")
+		t.Assert(user2.UserName.First, true)
 	})
 
 }
